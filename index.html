@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Legal Hospital" />
+  <title>Legal Hospital | OPD for Legal Remedies</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f1f5f9;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: none;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
+    .rx-paper {
+      background-image: radial-gradient(#cbd5e1 0.75px, transparent 0.75px);
+      background-size: 16px 16px;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased flex justify-center min-h-screen bg-slate-900">
+
+  <!-- Mobile App Shell -->
+  <div class="w-full max-w-md bg-slate-50 min-h-screen flex flex-col relative shadow-2xl overflow-x-hidden">
+
+    <!-- Top App Bar -->
+    <header class="sticky top-0 z-30 bg-slate-900 text-white px-4 pt-4 pb-3 shadow-md">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-rose-600 flex items-center justify-center shadow-lg shadow-rose-600/30 font-extrabold text-xl">
+            +
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h1 class="font-extrabold text-lg tracking-tight leading-none">LEGAL HOSPITAL</h1>
+              <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">24×7 OPD</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">Instant Legal Triage, Wards & Prescriptions</p>
+          </div>
+        </div>
+        <button onclick="switchTab('install')" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1 transition">
+          <span>📲</span>
+          <span>Get App</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main id="app-content" class="flex-1 pb-24 overflow-y-auto">
+      
+      <!-- TAB 1: OPD WARDS (HOME) -->
+      <section id="tab-home" class="p-4 space-y-4">
+        
+        <!-- Emergency Triage Banner -->
+        <div class="bg-gradient-to-r from-rose-600 to-red-700 rounded-2xl p-4 text-white shadow-lg shadow-rose-600/20 relative overflow-hidden">
+          <div class="relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">Emergency Casualty Ward</span>
+              <span class="text-xs font-semibold">Cyber: 1930 | Police: 112</span>
+            </div>
+            <h2 class="text-base font-bold mt-2">Need Immediate Legal First-Aid?</h2>
+            <p class="text-xs text-rose-100 mt-0.5">Check symptoms, get exact statutory sections & generate legal notices in 30 seconds.</p>
+            <button onclick="switchTab('triage')" class="mt-3 bg-white text-rose-700 font-bold text-xs px-3.5 py-2 rounded-xl shadow active:scale-95 transition">
+              Start Symptom Checkup →
+            </button>
+          </div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div>
+          <div class="relative">
+            <input type="text" id="ward-search" oninput="filterWards()" placeholder="Search ward (e.g., Company, Consumer, Cheque, NCLT)..." 
+              class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-sm" />
+            <span class="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
+          </div>
+
+          <!-- Category Pills -->
+          <div class="flex gap-2 overflow-x-auto no-scrollbar mt-3 pb-1">
+            <button onclick="setCategory('all', this)" class="cat-pill active bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">All Wards (6)</button>
+            <button onclick="setCategory('business', this)" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">Company & Corporate</button>
+            <button onclick="setCategory('consumer', this)" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">Consumer & RERA</button>
+            <button onclick="setCategory('litigation', this)" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">Criminal, Civil & Family</button>
+          </div>
+        </div>
+
+        <!-- Wards Grid -->
+        <div id="wards-list" class="space-y-3">
+          <!-- Populated dynamically by JS -->
+        </div>
+
+      </section>
+
+      <!-- TAB 2: SYMPTOM CHECKER & PRESCRIPTION -->
+      <section id="tab-triage" class="p-4 space-y-4 hidden">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2 py-0.5 rounded">Digital Consultation</span>
+          <h2 class="text-lg font-extrabold text-slate-900 mt-1">Legal Symptom Checker</h2>
+          <p class="text-xs text-slate-500">Select your department and legal issue to generate an instant Legal Prescription (℞).</p>
+
+          <div class="mt-4 space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">1. Select Hospital Ward</label>
+              <select id="triage-ward" onchange="updateSymptomOptions()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-500">
+                <option value="company">🏢 Company Law Ward (Companies Act 2013)</option>
+                <option value="corporate">💼 Corporate & Commercial Law Ward</option>
+                <option value="consumer">🛒 Consumer Protection Ward (CPA 2019)</option>
+                <option value="criminal">🚨 Criminal & Cyber Crime Ward (BNS / IT Act)</option>
+                <option value="civil">🏠 Civil, Property & Cheque Bounce Ward</option>
+                <option value="family">⚖️ Family & Matrimonial Ward</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">2. Select Patient Symptom (Legal Issue)</label>
+              <select id="triage-symptom" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-500">
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">3. Case Urgency</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="selectUrgency('Routine Checkup', this)" class="urg-btn border border-slate-200 bg-slate-50 text-xs font-semibold py-2 rounded-xl text-slate-600">Routine</button>
+                <button type="button" onclick="selectUrgency('Urgent Notice', this)" class="urg-btn border-2 border-rose-600 bg-rose-50 text-xs font-bold py-2 rounded-xl text-rose-700">Urgent</button>
+                <button type="button" onclick="selectUrgency('ICU / Stay Order', this)" class="urg-btn border border-slate-200 bg-slate-50 text-xs font-semibold py-2 rounded-xl text-slate-600">Emergency ICU</button>
+              </div>
+            </div>
+
+            <button onclick="generatePrescription()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-3 rounded-xl shadow-md active:scale-98 transition mt-2">
+              Generate Legal Prescription (℞)
+            </button>
+          </div>
+        </div>
+
+        <!-- Generated Prescription Card -->
+        <div id="rx-output" class="hidden rx-paper bg-white rounded-2xl border-2 border-slate-800 p-4 shadow-lg space-y-3">
+          <div class="flex items-start justify-between border-b border-slate-200 pb-3">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xl font-black text-rose-600">℞</span>
+                <h3 class="font-extrabold text-sm text-slate-900 uppercase tracking-wide">Legal Hospital Prescription</h3>
+              </div>
+              <p id="rx-ward-label" class="text-[11px] font-semibold text-slate-500 mt-0.5"></p>
+            </div>
+            <span id="rx-urgency-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-700"></span>
+          </div>
+
+          <div>
+            <p class="text-[10px] font-bold uppercase text-slate-400">Diagnosis (Applicable Laws & Sections)</p>
+            <p id="rx-sections" class="text-xs font-bold text-slate-900 mt-0.5 bg-amber-50 border border-amber-200 p-2 rounded-lg"></p>
+          </div>
+
+          <div>
+            <p class="text-[10px] font-bold uppercase text-slate-400">Treatment Protocol (Immediate Legal Steps)</p>
+            <ul id="rx-steps" class="text-xs text-slate-700 space-y-1.5 mt-1 list-disc pl-4"></ul>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <p class="text-[10px] font-bold text-slate-400 uppercase">Forum / Court</p>
+              <p id="rx-forum" class="text-xs font-bold text-slate-800 mt-0.5"></p>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+              <p class="text-[10px] font-bold text-slate-400 uppercase">Limitation Period</p>
+              <p id="rx-limitation" class="text-xs font-bold text-rose-700 mt-0.5"></p>
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-2">
+            <button onclick="copyPrescription()" class="flex-1 bg-emerald-600 text-white text-xs font-bold py-2.5 rounded-xl shadow">
+              📋 Copy Prescription
+            </button>
+            <button onclick="switchTab('drafts')" class="flex-1 bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl shadow">
+              ✍️ Draft Legal Notice
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: LEGAL NOTICE DRAFTING LAB -->
+      <section id="tab-drafts" class="p-4 space-y-4 hidden">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Drafting Pharmacy</span>
+            <h2 class="text-lg font-extrabold text-slate-900 mt-1">Instant Legal Notice Generator</h2>
+            <p class="text-xs text-slate-500">Fill basic details to generate a ready-to-send Legal Notice template.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Notice Template</label>
+            <select id="draft-type" onchange="renderDraft()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium">
+              <option value="consumer">Consumer Deficiency / Refund Notice (Sec 35 CPA 2019)</option>
+              <option value="corporate">Corporate Breach of Contract / B2B Payment Notice</option>
+              <option value="company">Company Law: Oppression / Director Non-Compliance Notice</option>
+              <option value="ibc">IBC Section 8 Demand Notice (Unpaid Corporate Debt &gt; ₹1 Cr)</option>
+              <option value="cheque">Cheque Dishonour Demand Notice (Sec 138 NI Act)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Sender / Client Name</label>
+              <input type="text" id="draft-sender" oninput="renderDraft()" placeholder="e.g., Rahul Sharma" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Opposite Party / Company</label>
+              <input type="text" id="draft-receiver" oninput="renderDraft()" placeholder="e.g., XYZ Pvt. Ltd." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Claim / Dispute Amount (₹)</label>
+              <input type="text" id="draft-amount" oninput="renderDraft()" placeholder="e.g., ₹1,50,000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Notice Cure Period (Days)</label>
+              <input type="text" id="draft-days" oninput="renderDraft()" value="15 Days" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-bold text-slate-700">Generated Notice Preview</label>
+              <button onclick="copyDraft()" class="text-xs font-bold text-rose-600 hover:underline">Copy Text 📋</button>
+            </div>
+            <textarea id="draft-preview" rows="11" class="w-full bg-slate-900 text-slate-100 font-mono text-[11px] p-3 rounded-xl leading-relaxed focus:outline-none"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: INSTALL AS iOS / ANDROID APP -->
+      <section id="tab-install" class="p-4 space-y-4 hidden">
+        <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-lg">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">100% Free App Installation</span>
+          <h2 class="text-lg font-extrabold mt-1">Install Legal Hospital on Mobile</h2>
+          <p class="text-xs text-slate-300 mt-1">No Play Store or App Store fee required. Install directly as a native-feel mobile app on both Android and iPhone.</p>
+        </div>
+
+        <!-- Android Guide -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🤖</span>
+            <h3 class="font-extrabold text-sm text-slate-900">For Android (Chrome Browser)</h3>
+          </div>
+          <ol class="text-xs text-slate-600 space-y-1.5 list-decimal pl-4">
+            <li>Open your GitHub Pages link in <strong>Google Chrome</strong>.</li>
+            <li>Tap the <strong>Three Dots (⋮)</strong> menu in the top-right corner.</li>
+            <li>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</li>
+            <li>Tap <strong>Install</strong> — Legal Hospital will appear in your app drawer!</li>
+          </ol>
+        </div>
+
+        <!-- iOS Guide -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🍎</span>
+            <h3 class="font-extrabold text-sm text-slate-900">For iPhone / iPad (Safari Browser)</h3>
+          </div>
+          <ol class="text-xs text-slate-600 space-y-1.5 list-decimal pl-4">
+            <li>Open your GitHub Pages link in <strong>Apple Safari</strong>.</li>
+            <li>Tap the <strong>Share icon (□↑)</strong> at the bottom center of the screen.</li>
+            <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+            <li>Tap <strong>Add</strong> — Launches full-screen just like an App Store app!</li>
+          </ol>
+        </div>
+
+        <!-- Want Native APK/IPA? -->
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-1.5">
+          <h4 class="font-bold text-xs text-amber-900">💡 Want a downloadable .APK file too?</h4>
+          <p class="text-xs text-amber-800 leading-relaxed">
+            Once this code is live on your GitHub Pages URL, paste your link into <strong>PWABuilder.com</strong> (free Microsoft tool) to generate an installable Android <strong>.APK</strong> and iOS package in 2 minutes.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Ward Detail Bottom Modal -->
+    <div id="ward-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs hidden items-end justify-center">
+      <div class="bg-white w-full max-w-md rounded-t-3xl p-5 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl">
+        <div class="flex items-start justify-between">
+          <div>
+            <span id="modal-tag" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-rose-100 text-rose-700"></span>
+            <h3 id="modal-title" class="text-lg font-extrabold text-slate-900 mt-1"></h3>
+          </div>
+          <button onclick="closeWardModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold flex items-center justify-center">✕</button>
+        </div>
+
+        <p id="modal-desc" class="text-xs text-slate-600 leading-relaxed"></p>
+
+        <div>
+          <h4 class="text-xs font-extrabold uppercase text-slate-800 mb-2">Common Cases Treated in This Ward:</h4>
+          <div id="modal-cases" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+          <p class="text-[10px] font-bold uppercase text-slate-400">Primary Forum / Jurisdiction</p>
+          <p id="modal-forum" class="text-xs font-bold text-slate-900 mt-0.5"></p>
+        </div>
+
+        <button id="modal-consult-btn" class="w-full bg-rose-600 text-white font-bold text-xs py-3 rounded-xl shadow">
+          Open Symptom Checker for This Ward →
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Tab Navigation -->
+    <nav class="fixed bottom-0 w-full max-w-md bg-white border-t border-slate-200 px-2 py-2 flex justify-around items-center z-30 safe-bottom shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+      <button onclick="switchTab('home')" id="nav-home" class="nav-btn flex flex-col items-center gap-0.5 text-rose-600 font-bold px-3 py-1">
+        <span class="text-lg">🏥</span>
+        <span class="text-[10px]">OPD Wards</span>
+      </button>
+      <button onclick="switchTab('triage')" id="nav-triage" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 font-medium px-3 py-1">
+        <span class="text-lg">🩺</span>
+        <span class="text-[10px]">Symptom AI</span>
+      </button>
+      <button onclick="switchTab('drafts')" id="nav-drafts" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 font-medium px-3 py-1">
+        <span class="text-lg">📄</span>
+        <span class="text-[10px]">Draft Notice</span>
+      </button>
+      <button onclick="switchTab('install')" id="nav-install" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 font-medium px-3 py-1">
+        <span class="text-lg">📱</span>
+        <span class="text-[10px]">iOS/Android</span>
+      </button>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity z-50">
+      Copied to clipboard!
+    </div>
+
+  </div>
+
+  <script>
+    // --- DATA: OPD WARDS (INCLUDING COMPANY, CORPORATE & CONSUMER LAW) ---
+    const WARDS = [
+      {
+        id: 'company',
+        category: 'business',
+        icon: '🏢',
+        badge: 'NEW WARD',
+        badgeColor: 'bg-blue-100 text-blue-700',
+        title: 'Company Law Ward',
+        subtitle: 'Companies Act 2013 • NCLT • Shareholder & Director Disputes',
+        desc: 'Specialized corporate governance clinic handling incorporation compliance, oppression & mismanagement, director removal, and NCLT/NCLAT petitions.',
+        forum: 'National Company Law Tribunal (NCLT) / ROC / Regional Director',
+        cases: [
+          { title: 'Oppression & Mismanagement (Sec 241–242)', detail: 'Protection for minority shareholders against unfair conduct by majority/board.' },
+          { title: 'Illegal Director Removal / Board Deadlock (Sec 169)', detail: 'Challenging improper EGM notices, DIN deactivation, or board resolutions.' },
+          { title: 'ROC Filings & Strike-Off Restoration (Sec 252)', detail: 'Reviving struck-off companies and compounding MCA/ROC defaults.' }
+        ]
+      },
+      {
+        id: 'corporate',
+        category: 'business',
+        icon: '💼',
+        badge: 'NEW WARD',
+        badgeColor: 'bg-indigo-100 text-indigo-700',
+        title: 'Corporate & Commercial Ward',
+        subtitle: 'Contracts • IBC Insolvency • Arbitration • M&A',
+        desc: 'Dedicated commercial triage for B2B contract breaches, corporate debt recovery under IBC, startup founders agreements, and commercial arbitration.',
+        forum: 'Commercial Courts / Arbitral Tribunal / NCLT (IBC)',
+        cases: [
+          { title: 'Corporate Debt Recovery / Insolvency (IBC Sec 7 & 9)', detail: 'Initiating CIRP against corporate debtors for defaults of ₹1 Crore or more.' },
+          { title: 'Breach of Commercial Contract & Indemnity', detail: 'Specific performance, injunctions, and damages under Indian Contract Act & Commercial Courts Act.' },
+          { title: 'Arbitration & Interim Relief (Sec 9 & 11)', detail: 'Urgent asset freeze before/during arbitration and appointment of sole arbitrator.' }
+        ]
+      },
+      {
+        id: 'consumer',
+        category: 'consumer',
+        icon: '🛒',
+        badge: 'NEW WARD',
+        badgeColor: 'bg-emerald-100 text-emerald-700',
+        title: 'Consumer Protection Ward',
+        subtitle: 'CPA 2019 • E-Commerce • Medical Negligence • RERA',
+        desc: 'Fast-track consumer grievance ward for defective goods, deficiency in service, insurance claim rejections, dark patterns, and builder delays.',
+        forum: 'District (≤₹50L), State (₹50L–₹2Cr), National (>₹2Cr) Commission / e-Daakhil',
+        cases: [
+          { title: 'Deficiency in Service & Unfair Trade Practice', detail: 'Banks, airlines, telecom, and insurance companies wrongly denying claims.' },
+          { title: 'E-Commerce Fraud & Non-Refund (E-Commerce Rules 2020)', detail: 'Fake products, refusal to accept returns, and hidden cancellation charges.' },
+          { title: 'Builder Delay & RERA / Consumer Compensation', detail: 'Refund with interest or possession delay compensation under CPA 2019 & RERA.' }
+        ]
+      },
+      {
+        id: 'criminal',
+        category: 'litigation',
+        icon: '🚨',
+        badge: 'EMERGENCY',
+        badgeColor: 'bg-rose-100 text-rose-700',
+        title: 'Criminal & Cyber Trauma Ward',
+        subtitle: 'BNSS / BNS • Bail • FIR Quashing • Cyber Fraud (1930)',
+        desc: '24×7 emergency defense for arrest protection, anticipatory bail, financial cyber fraud lien removal, and quashing of false FIRs.',
+        forum: 'JMFC / Sessions Court / High Court (Sec 528 BNSS)',
+        cases: [
+          { title: 'Anticipatory & Regular Bail (Sec 482 / 480 BNSS)', detail: 'Immediate protection against arbitrary arrest and custody.' },
+          { title: 'Bank Account Freeze / Cyber Lien Removal', detail: 'Approaching Cyber Cell & Magistrate under Sec 497/503 BNSS to unfreeze innocent accounts.' }
+        ]
+      },
+      {
+        id: 'civil',
+        category: 'litigation',
+        icon: '🏠',
+        badge: 'OPD',
+        badgeColor: 'bg-amber-100 text-amber-700',
+        title: 'Civil, Property & NI Act Ward',
+        subtitle: 'Cheque Bounce (Sec 138) • Stay Injunctions • Partition',
+        desc: 'Handling dishonoured cheques, urgent status-quo stay orders against illegal dispossession, tenant eviction, and recovery suits.',
+        forum: 'Civil Judge / District Court / MM NI Act Court',
+        cases: [
+          { title: 'Cheque Dishonour Prosecution (Sec 138 NI Act)', detail: '30-day statutory demand notice and summary criminal complaint.' },
+          { title: 'Temporary Injunction / Stay Order (Order 39 Rule 1 & 2 CPC)', detail: 'Immediate restraint order protecting possession and title.' }
+        ]
+      },
+      {
+        id: 'family',
+        category: 'litigation',
+        icon: '⚖️',
+        badge: 'OPD',
+        badgeColor: 'bg-purple-100 text-purple-700',
+        title: 'Family & Matrimonial Ward',
+        subtitle: 'Divorce • Maintenance (Sec 144 BNSS) • DV Act • Custody',
+        desc: 'Confidential legal clinic for mutual consent divorce, maintenance claims, domestic violence protection orders, and child visitation rights.',
+        forum: 'Principal Judge, Family Court / Mahila Court',
+        cases: [
+          { title: 'Mutual Consent Divorce & Alimony Settlement', detail: 'Drafting Memorandum of Understanding (MoU) and First/Second Motion petitions.' },
+          { title: 'Interim Maintenance & Residence Order', detail: 'Financial support under Sec 144 BNSS & Protection of Women from Domestic Violence Act.' }
+        ]
+      }
+    ];
+
+    // --- DATA: SYMPTOM CHECKER PRESCRIPTIONS ---
+    const SYMPTOMS_DB = {
+      company: [
+        {
+          label: 'Majority shareholders sidelining minority / siphoning funds',
+          sections: 'Sections 241, 242 & 244 of the Companies Act, 2013',
+          steps: [
+            'Collect board minutes, audited financial statements, and share transfer records.',
+            'Verify minimum 10% shareholding threshold (or apply for waiver under Sec 244(1) proviso).',
+            'File Company Petition before NCLT seeking interim stay on board resolutions and forensic audit.'
+          ],
+          forum: 'NCLT (Jurisdictional Bench)',
+          limitation: '3 Years (Art. 137 Limitation Act)'
+        },
+        {
+          label: 'Illegal removal of Director without due process',
+          sections: 'Section 169 of Companies Act, 2013 & Secretarial Standard-1 (SS-1)',
+          steps: [
+            'Check if Special Notice under Sec 115 was served and right of representation was given.',
+            'Inspect MCA Form DIR-12 attachments for forged resignation or missing board notice.',
+            'Serve legal notice to Company & ROC and move NCLT for reinstatement/stay.'
+          ],
+          forum: 'NCLT / Registrar of Companies (ROC)',
+          limitation: 'Immediate / 3 Years'
+        }
+      ],
+      corporate: [
+        {
+          label: 'Corporate client defaulting on undisputed invoice (> ₹1 Crore)',
+          sections: 'Sections 8 & 9 of the Insolvency and Bankruptcy Code (IBC), 2016',
+          steps: [
+            'Compile purchase orders, tax invoices, delivery proofs, and ledger confirmation.',
+            'Serve Statutory Demand Notice in Form 3 / Form 4 giving 10 days to pay or show pre-existing dispute.',
+            'File Section 9 CIRP Application before NCLT upon expiry of 10 days.'
+          ],
+          forum: 'NCLT (Adjudicating Authority)',
+          limitation: '3 Years from Date of Default'
+        },
+        {
+          label: 'Vendor / Partner breaching NDA, SLA, or Commercial Contract',
+          sections: 'Sections 73–75 Indian Contract Act, 1872 & Sec 9 Arbitration Act, 1996',
+          steps: [
+            'Review Dispute Resolution, Governing Law, and Termination clauses in the agreement.',
+            'Issue formal Cure / Breach Notice quantifying liquidated or actual damages.',
+            'File Sec 9 petition for interim injunction or invoke Arbitration under Sec 21.'
+          ],
+          forum: 'Commercial Court / Arbitral Tribunal',
+          limitation: '3 Years from Breach'
+        }
+      ],
+      consumer: [
+        {
+          label: 'Defective product, failed service, or e-commerce refund denial',
+          sections: 'Sections 2(11), 2(47) & 35 of Consumer Protection Act, 2019',
+          steps: [
+            'Preserve invoice, warranty card, chat/email transcripts, and grievance ticket numbers.',
+            'Send a 15-day Legal Notice demanding refund/replacement + compensation for mental agony.',
+            'File online complaint via e-Daakhil portal before District Consumer Commission.'
+          ],
+          forum: 'District Consumer Commission (up to ₹50 Lakhs)',
+          limitation: '2 Years from Cause of Action (Sec 69)'
+        },
+        {
+          label: 'Insurance claim arbitrarily rejected by insurer',
+          sections: 'Sec 35 CPA 2019 & IRDAI (Protection of Policyholders’ Interests) Regulations',
+          steps: [
+            'Obtain written repudiation letter and surveyor report from the insurance company.',
+            'Escalate to Insurance Grievance Redressal Officer (GRO) & Insurance Ombudsman.',
+            'File Consumer Complaint claiming full policy amount with 9%–12% interest & litigation costs.'
+          ],
+          forum: 'Consumer Commission / Insurance Ombudsman',
+          limitation: '2 Years from Repudiation'
+        }
+      ],
+      criminal: [
+        {
+          label: 'Cyber fraud money credited; Police froze entire bank account',
+          sections: 'Sections 106 & 497/503 of Bharatiya Nagarik Suraksha Sanhita (BNSS), 2023',
+          steps: [
+            'Obtain acknowledgment number, disputed amount, and Cyber Police Station details from your bank.',
+            'Submit written representation to Investigating Officer (IO) showing legitimate business/sale proof.',
+            'File an application before the Jurisdictional Magistrate for de-freezing / restricting lien only to disputed sum.'
+          ],
+          forum: 'Judicial Magistrate First Class (JMFC)',
+          limitation: 'Immediate Action Recommended'
+        }
+      ],
+      civil: [
+        {
+          label: 'Cheque bounced due to Insufficient Funds / Stop Payment',
+          sections: 'Section 138 & Section 143A of Negotiable Instruments Act, 1881',
+          steps: [
+            'Collect original dishonoured cheque and bank return memo with seal.',
+            'Send mandatory Legal Demand Notice within 30 days of receiving bank memo.',
+            'If unpaid within 15 days of receipt, file criminal complaint within next 30 days.'
+          ],
+          forum: 'Magistrate Court (NI Act)',
+          limitation: '30 Days Notice + 30 Days Filing (Strict)'
+        }
+      ],
+      family: [
+        {
+          label: 'Wife/Children denied financial maintenance by spouse',
+          sections: 'Section 144 of BNSS, 2023 (formerly Sec 125 CrPC) & Sec 20 DV Act',
+          steps: [
+            'Prepare Affidavit of Assets and Liabilities as per Rajnesh v. Neha guidelines.',
+            'Gather proof of marriage, expenses, and spouse’s income/lifestyle.',
+            'File Petition along with Interim Maintenance Application before Family Court.'
+          ],
+          forum: 'Principal Judge, Family Court',
+          limitation: 'Continuing Cause of Action'
+        }
+      ]
+    };
+
+    // --- DATA: NOTICE TEMPLATES ---
+    const DRAFT_TEMPLATES = {
+      consumer: (s, r, amt, days) => `LEGAL NOTICE UNDER SECTION 35 OF THE CONSUMER PROTECTION ACT, 2019
+
+To,
+The Managing Director / Grievance Officer,
+${r || '[Opposite Party / Company Name]'}
+
+Subject: Legal Notice for Deficiency in Service, Unfair Trade Practice & Claim of ${amt || '[Amount]'}
+
+Sir/Madam,
+Under instructions from and on behalf of my client, ${s || '[Client Name]'}, I hereby serve upon you the following Legal Notice:
+
+1. That my client availed your goods/services against valid consideration of ${amt || '[Amount]'}.
+2. That despite repeated requests, you have failed to rectify the defect / process the legitimate refund, amounting to gross "Deficiency in Service" under Section 2(11) and "Unfair Trade Practice" under Section 2(47) of the Consumer Protection Act, 2019.
+3. You are hereby called upon to refund ${amt || '[Amount]'} along with ₹25,000/- towards mental agony and harassment within ${days} of receipt of this notice, failing which my client shall initiate proceedings before the Hon'ble Consumer Disputes Redressal Commission at your sole risk and cost.
+
+Advocate / Authorized Signatory`,
+
+      corporate: (s, r, amt, days) => `LEGAL NOTICE FOR BREACH OF COMMERCIAL CONTRACT & RECOVERY OF DUES
+
+To,
+${r || '[Corporate Entity / Vendor Name]'}
+
+Subject: Notice of Material Breach of Agreement and Demand for Payment of ${amt || '[Amount]'}
+
+Dear Sir/Madam,
+On behalf of my client, ${s || '[Client / Company Name]'}, you are hereby notified as under:
+
+1. That pursuant to the Commercial Agreement executed between the parties, my client duly performed all contractual obligations without demur.
+2. That you have committed material breach of contract by defaulting on payment of ${amt || '[Amount]'}, causing substantial financial loss to my client.
+3. Take notice that you are required to cure the aforesaid breach and remit ${amt || '[Amount]'} with contractual interest within ${days}, failing which my client shall institute a Commercial Suit / Arbitration proceedings under the Commercial Courts Act, 2015 and Arbitration & Conciliation Act, 1996.
+
+Advocate for ${s || '[Client]'}`,
+
+      company: (s, r, amt, days) => `STATUTORY LEGAL NOTICE UNDER COMPANIES ACT, 2013
+
+To,
+The Board of Directors,
+${r || '[Company Name Pvt. Ltd.]'}
+
+Subject: Notice against Oppressive Conduct, Non-Compliance & Demand for Inspection of Statutory Records
+
+Dear Directors,
+Under instructions from my client, ${s || '[Shareholder / Director Name]'}, holding equity shares in ${r || '[Company Name]'}, I state as follows:
+
+1. That the recent board actions/resolutions passed without proper statutory notice violate Section 173 of the Companies Act, 2013 and Secretarial Standards, and are oppressive to my client under Sections 241–242 of the Act.
+2. You are hereby called upon to furnish certified copies of statutory registers, financial statements, and board minutes, and withdraw the impugned actions within ${days}, failing which my client shall approach the Hon'ble National Company Law Tribunal (NCLT) for appropriate injunctive and statutory reliefs.
+
+Advocate for ${s || '[Client]'}`,
+
+      ibc: (s, r, amt, days) => `FORM 3 — DEMAND NOTICE UNDER SECTION 8 OF THE INSOLVENCY AND BANKRUPTCY CODE, 2016
+
+To,
+${r || '[Corporate Debtor Name]'}
+
+Subject: Statutory Demand Notice for Unpaid Operational Debt of ${amt || '[Amount > ₹1 Crore]'}
+
+Madam/Sir,
+1. This Demand Notice is issued by ${s || '[Operational Creditor]'} demanding payment of an unpaid operational debt amounting to ${amt || '[Amount]'} due from ${r || '[Corporate Debtor]'}.
+2. Detailed particulars of invoices, delivery proofs, and computation of default are annexed herewith.
+3. If you do not pay the unpaid operational debt or demonstrate the existence of a pre-existing dispute within TEN (10) DAYS from receipt of this notice, the Operational Creditor shall file an application before the Hon'ble NCLT under Section 9 of the IBC, 2016 to initiate Corporate Insolvency Resolution Process (CIRP).
+
+Authorized Signatory / Advocate`,
+
+      cheque: (s, r, amt, days) => `STATUTORY DEMAND NOTICE UNDER SECTION 138 OF THE NEGOTIABLE INSTRUMENTS ACT, 1881
+
+To,
+${r || '[Drawer Name]'}
+
+Subject: Notice regarding Dishonour of Cheque for ${amt || '[Cheque Amount]'}
+
+Sir/Madam,
+Under instructions from my client, ${s || '[Payee Name]'}, I serve you this mandatory notice under Section 138(b) of the NI Act, 1881:
+
+1. That towards discharge of a legally enforceable liability of ${amt || '[Amount]'}, you issued a cheque which, upon presentation, was returned unpaid by your banker with remarks "Funds Insufficient".
+2. You are hereby called upon to pay the cheque amount of ${amt || '[Amount]'} within 15 DAYS from the receipt of this notice, failing which my client shall file a criminal complaint under Section 138 of the NI Act, 1881 punishable with imprisonment up to 2 years and fine up to twice the cheque amount.
+
+Advocate for ${s || '[Payee]'}`
+    };
+
+    // --- STATE & RENDERING ---
+    let currentCategory = 'all';
+    let selectedUrgency = 'Urgent Notice';
+
+    function renderWards() {
+      const query = document.getElementById('ward-search').value.toLowerCase();
+      const container = document.getElementById('wards-list');
+      
+      const filtered = WARDS.filter(w => {
+        const matchesCat = currentCategory === 'all' || w.category === currentCategory;
+        const matchesText = w.title.toLowerCase().includes(query) || 
+                            w.subtitle.toLowerCase().includes(query) || 
+                            w.desc.toLowerCase().includes(query);
+        return matchesCat && matchesText;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">No hospital ward matched "${query}". Try "Company", "Consumer", or "Corporate".</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(w => `
+        <div onclick="openWardModal('${w.id}')" class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm hover:border-rose-300 active:scale-99 transition cursor-pointer">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center text-2xl shrink-0">
+                ${w.icon}
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="font-extrabold text-sm text-slate-900">${w.title}</h3>
+                  <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${w.badgeColor}">${w.badge}</span>
+                </div>
+                <p class="text-[11px] font-semibold text-slate-500 mt-0.5">${w.subtitle}</p>
+              </div>
+            </div>
+            <span class="text-slate-300 text-lg font-bold">›</span>
+          </div>
+          <p class="text-xs text-slate-600 mt-2.5 line-clamp-2">${w.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    function setCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(p => {
+        p.className = 'cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap';
+      });
+      btn.className = 'cat-pill active bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap';
+      renderWards();
+    }
+
+    function filterWards() {
+      renderWards();
+    }
+
+    function openWardModal(id) {
+      const ward = WARDS.find(w => w.id === id);
+      if (!ward) return;
+      document.getElementById('modal-tag').textContent = ward.badge;
+      document.getElementById('modal-title').textContent = `${ward.icon} ${ward.title}`;
+      document.getElementById('modal-desc').textContent = ward.desc;
+      document.getElementById('modal-forum').textContent = ward.forum;
+      document.getElementById('modal-cases').innerHTML = ward.cases.map(c => `
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+          <p class="text-xs font-bold text-slate-900">• ${c.title}</p>
+          <p class="text-[11px] text-slate-600 mt-0.5">${c.detail}</p>
+        </div>
+      `).join('');
+      document.getElementById('modal-consult-btn').onclick = () => {
+        closeWardModal();
+        document.getElementById('triage-ward').value = ward.id;
+        updateSymptomOptions();
+        switchTab('triage');
+      };
+      const modal = document.getElementById('ward-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeWardModal() {
+      const modal = document.getElementById('ward-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // --- TRIAGE / SYMPTOM CHECKER ---
+    function updateSymptomOptions() {
+      const wardId = document.getElementById('triage-ward').value;
+      const select = document.getElementById('triage-symptom');
+      const items = SYMPTOMS_DB[wardId] || [];
+      select.innerHTML = items.map((item, idx) => `<option value="${idx}">${item.label}</option>`).join('');
+    }
+
+    function selectUrgency(val, btn) {
+      selectedUrgency = val;
+      document.querySelectorAll('.urg-btn').forEach(b => {
+        b.className = 'urg-btn border border-slate-200 bg-slate-50 text-xs font-semibold py-2 rounded-xl text-slate-600';
+      });
+      btn.className = 'urg-btn border-2 border-rose-600 bg-rose-50 text-xs font-bold py-2 rounded-xl text-rose-700';
+    }
+
+    function generatePrescription() {
+      const wardId = document.getElementById('triage-ward').value;
+      const symIdx = document.getElementById('triage-symptom').value;
+      const ward = WARDS.find(w => w.id === wardId);
+      const data = SYMPTOMS_DB[wardId][symIdx];
+
+      document.getElementById('rx-ward-label').textContent = `${ward.title} • Patient Issue: ${data.label}`;
+      document.getElementById('rx-urgency-badge').textContent = selectedUrgency;
+      document.getElementById('rx-sections').textContent = data.sections;
+      document.getElementById('rx-steps').innerHTML = data.steps.map(s => `<li>${s}</li>`).join('');
+      document.getElementById('rx-forum').textContent = data.forum;
+      document.getElementById('rx-limitation').textContent = data.limitation;
+
+      const output = document.getElementById('rx-output');
+      output.classList.remove('hidden');
+      output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function copyPrescription() {
+      const text = `LEGAL HOSPITAL PRESCRIPTION (℞)\n` +
+        `${document.getElementById('rx-ward-label').textContent}\n\n` +
+        `Applicable Laws: ${document.getElementById('rx-sections').textContent}\n` +
+        `Forum: ${document.getElementById('rx-forum').textContent}\n` +
+        `Limitation: ${document.getElementById('rx-limitation').textContent}\n\n` +
+        `Action Steps:\n${Array.from(document.querySelectorAll('#rx-steps li')).map(li => '- ' + li.textContent).join('\n')}`;
+      copyToClipboard(text);
+    }
+
+    // --- DRAFTS ---
+    function renderDraft() {
+      const type = document.getElementById('draft-type').value;
+      const sender = document.getElementById('draft-sender').value;
+      const receiver = document.getElementById('draft-receiver').value;
+      const amount = document.getElementById('draft-amount').value;
+      const days = document.getElementById('draft-days').value;
+      document.getElementById('draft-preview').value = DRAFT_TEMPLATES[type](sender, receiver, amount, days);
+    }
+
+    function copyDraft() {
+      copyToClipboard(document.getElementById('draft-preview').value);
+    }
+
+    // --- NAVIGATION & UTILS ---
+    function switchTab(tab) {
+      ['home', 'triage', 'drafts', 'install'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        const nav = document.getElementById(`nav-${t}`);
+        nav.classList.remove('text-rose-600', 'font-bold');
+        nav.classList.add('text-slate-400', 'font-medium');
+      });
+      document.getElementById(`tab-${tab}`).classList.remove('hidden');
+      const activeNav = document.getElementById(`nav-${tab}`);
+      activeNav.classList.remove('text-slate-400', 'font-medium');
+      activeNav.classList.add('text-rose-600', 'font-bold');
+      document.getElementById('app-content').scrollTop = 0;
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.remove('opacity-0');
+        setTimeout(() => toast.classList.add('opacity-0'), 2000);
+      });
+    }
+
+    // Init
+    renderWards();
+    updateSymptomOptions();
+    renderDraft();
+  </script>
+</body>
+</html>
